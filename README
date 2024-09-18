@@ -1,0 +1,59 @@
+Serial BiqBin: an exact solver for Max-Cut problem
+
+INSTALLATION:
+Open the makefile Makefile and set the compiler and blas/lapack package correctly
+depending on your system. Then type make. BiqBin is self-contained and does not depend
+on any outer libraries except for basic linear algebra operations.  
+
+USAGE:
+./biqbin instances_file params
+
+where instance_file contains the underlying graph in edge list format and params is the parameter file that comes with the solver. 
+   
+*****
+NOTE: The maximum size of problem the solver can solve is 512. If you need more adjust the number NMAX in biqbin.h file
+*****
+
+
+*****************************************************************
+Explanation of BiqBin parameters (default values are in biqbin.h)
+*****************************************************************
+
+init_bundle_iter = initial number of iterations of bundle method
+max_bundle_iter  = maximum number of iterations of bundle method
+
+min_outer_iter	= minimum number if iterations of cutting planes algorithm
+max_outer_iter	= maximum number if iterations of cutting planes algorithm
+
+NOTE: all cutting planes are in the form B(X) <= 1 for appropriate operator B.
+violated_TriIneq = violation level of inequalities, i.e.
+                   B(X) - 1 > violated_Ineq
+
+TriIneq = maximum number of triangle inequalities to add in each separation
+          of new cutting planes. 
+
+Pent_Trials and Hepta_Trials = number of times simulated anneling is run for each type of 
+                               corresponding pentagonal or heptagonal inequality.
+			       Trials define the maximum number of pentagonal and heptagonal inequalities
+                               to add in each separation of new cutting planes. Note that
+                               for these numbers it should hold:
+                               PentIneq = 3 * Pent_Trials         
+                               HeptaIneq = 4 * Hepta_Trials  
+
+include_Pent and include_Hepta = whether to include pentagonal and/or heptagonal inequalities
+				 in SDP bound
+
+root:  if set to 1 only the SDP bound at root node will be computed
+
+use_diff:  if set to 1 cutting planes will only be added to SDP bound computation when
+           neccessary. This helps traversing the B&B tree faster. 
+
+time limit = maximum number of seconds allowed for the algorithm to run. If 0, biqbin stops
+             when optimum solution is found. 
+
+branchingStrategy = select branching strategy:
+                    LEAST_FRACTIONAL  0
+                    MOST_FRACTIONAL   1
+
+detailedOutput: set to 1 for more detailed output during evaluation of each B&B node 
+ 
