@@ -18,6 +18,8 @@ extern double root_bound;
 extern double TIME;
 extern int stopped;
 
+extern double const_val;  // constant value used in BQP -> MC tranformation. The opt. value of the original problem is const_val - OP_MC
+extern double rho;        // used in BQP -> MC transformation: exact penalty parameter = 2*rho + 1
 
 /* initialize global lower bound to 0 and global solution vector to zero */
 void initializeBabSolution(void) { 
@@ -265,6 +267,71 @@ void printFinalOutput(FILE *file, int num_nodes) {
 }
 
 
+/* print final output for BQP*/
+void printSolutionBQP(FILE *file) {
+
+    fprintf(file, "*********************** end of MAX-CUT output *******************************\n\n");
+
+    // Best solution found
+    double best_sol = Bab_LBGet();
+    
+
+    // check for infeasibility of original problem
+    if (const_val - best_sol > rho) {
+        fprintf(file, "Original problem is INFEASIBLE due to condition const_val - opt_MC > rho: %lf > %lf.\n", const_val - best_sol, rho);
+        return;
+    }
+    
+
+    // output value
+    // normal termination
+    if (!stopped) {
+        fprintf(file, "Minimum value of the original problem is const_val - Maximum value: %.0lf\n", const_val - best_sol);
+        
+    } else { // B&B stopped early
+        if (params.root) {
+            fprintf(file, "Best value (root) = %.0lf\n", const_val - best_sol);
+        }
+        else { /* time limit reached */
+            fprintf(file, "TIME LIMIT REACHED.\n");
+            fprintf(file, "Best value = %.0lf\n", const_val - best_sol);
+        }    
+    }
+
+    
+    // output solution
+    extern double *F_obj_data;
+    extern double *c_obj_data; 
+    // max-cut has symmetrix solutions: if x is opt.sol then -x is also. 
+    // We need to check both to see which one is the minimizer of the original problem 
+
+    // compute opt_value = x'Fx + c'x
+    double opt_value = 0.0;
+    for (int ii = 0; ii < BabPbSize; ++ii) {            
+        for (int jj = 0; jj < BabPbSize; ++jj) {
+            opt_value += (BabSol->X[ii])*F_obj_data[jj + ii * BabPbSize]*(BabSol->X[jj]);
+        }
+        opt_value += c_obj_data[ii]*(BabSol->X[ii]);
+    }
+    
+
+    fprintf(file, "Solution = ( ");
+    if ( (int)(const_val - best_sol) == (int)(opt_value) ) {
+        for (int i = 0; i < BabPbSize; ++i) {
+            fprintf(file, "%d ", BabSol->X[i]);
+        }
+    }
+    else {
+        for (int i = 0; i < BabPbSize; ++i) {
+            fprintf(file, "%d ", 1 - BabSol->X[i]); // flip
+        }
+    }
+    
+    fprintf(file, ")\n");
+      
+}
+
+
 /* Bab function called at the end of the execution.
  * This function prints output: number of 
  * nodes evaluated, the best solution found, the nodes best bound, the wall clock time.
@@ -275,6 +342,9 @@ void Bab_End(void) {
     /* Print results to the standard output and to the output file */
     printFinalOutput(stdout,Bab_numEvalNodes());
     printFinalOutput(output,Bab_numEvalNodes());
+
+    printSolutionBQP(stdout);
+    printSolutionBQP(output);
 
     freeMemory();
 
