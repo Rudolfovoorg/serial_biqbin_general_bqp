@@ -1,0 +1,55 @@
+Input file: test3.dat
+
+Instance has 3 variables and 2 constraints.
+
+Parameter rho: 13.001339
+Exact penalty parameter: 28
+const_value: 153.000000
+
+************************** MAX-CUT output **********************************
+BiqBin parameters:
+    init_bundle_iter = 5
+     max_bundle_iter = 20
+      min_outer_iter = 20
+      max_outer_iter = 30
+       violated_Ineq = 0.050000
+             TriIneq = 500
+         Pent_Trials = 100
+        Hepta_Trials = 75
+        include_Pent = 1
+       include_Hepta = 1
+                root = 0
+            use_diff = 1
+          time_limit = 0
+   branchingStrategy = 1
+      detailedOutput = 1
+
+**************************************************************************************************************************
+                                               Node 1
+**************************************************************************************************************************
+Problem size 4
+Fixed variables:
+Node 1 Feasible solution 120
+==========================================================================================================================
+starting bound     cut  triangles added  violation
+        132.09     120                2       0.50
+==========================================================================================================================
+iter     time      bound  bdl   viol3  triag  purged   added   viol5  penta  purged   added   viol7  hepta  purged   added
+==========================================================================================================================
+   1     0.00     122.31    3   2e-01      3    -0     +1      1e+00      0    -0     +0      1e+00      0    -0     +0    
+   2     0.00     120.98    3   2e-01      3    -0     +0      1e+00      0    -0     +0      1e+00      0    -0     +0    
+==========================================================================================================================
+Prune!
+==========================================================================================================================
+Depth = 0, Bound = 120.98, Best = 120
+
+
+Nodes = 1
+Root node bound = 120.981
+Maximum value = 120
+Solution = ( 1 2 )
+Wall clock time = 0.00 s
+
+*********************** end of MAX-CUT output *******************************
+
+Original problem is INFEASIBLE due to condition const_val - opt_MC > rho: 33.000000 > 13.001339.

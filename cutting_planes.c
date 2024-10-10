@@ -544,7 +544,7 @@ double updateHeptagonalInequalities(Problem *PP, double *y, int *NumAdded, int *
 
     // separate new heptagonal inequalities
     double maxAllIneq = getViolated_HeptagonalInequalities(X, N, Hepta_List, &ListSize);
-
+ 
     // Add List to Cuts
     int added = 0;
     for (ListCount = 0; ListCount < ListSize; ++ListCount) { 

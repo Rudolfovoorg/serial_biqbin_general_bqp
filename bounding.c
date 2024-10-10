@@ -240,9 +240,11 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
                                         // and heptagonal inequalities start!
 
             viol3 = updateTriangleInequalities(PP, gamma, &Tri_NumAdded, &Tri_NumSubtracted);
+   
+
                       
-            /* include pentagonal and heptagonal inequalities */          
-            if ( viol3 < 0.3 )
+            /* include pentagonal and heptagonal inequalities (only for problems with n > 10)*/          
+            if ( (SP->n > 10) && (viol3 < 0.3) )
             {
                 if ( params.include_Pent ) {
                     viol5 = updatePentagonalInequalities(PP, gamma, &Pent_NumAdded, &Pent_NumSubtracted, triag);  
@@ -250,9 +252,10 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
                 if ( params.include_Hepta ) {
                     if (penta == 0)
                         penta = PP->NPentIneq;
-                    viol7 = updateHeptagonalInequalities(PP, gamma, &Hepta_NumAdded, &Hepta_NumSubtracted, triag + penta);        
+                    viol7 = updateHeptagonalInequalities(PP, gamma, &Hepta_NumAdded, &Hepta_NumSubtracted, triag + penta);  
                 }
             }
+
                 
         }
         else {               

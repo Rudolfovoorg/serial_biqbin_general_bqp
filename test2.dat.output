@@ -1,0 +1,48 @@
+Input file: test2.dat
+
+Instance has 3 variables and 1 constraints.
+
+Parameter rho: 13.001339
+Exact penalty parameter: 28
+const_value: 125.000000
+
+************************** MAX-CUT output **********************************
+BiqBin parameters:
+    init_bundle_iter = 5
+     max_bundle_iter = 20
+      min_outer_iter = 20
+      max_outer_iter = 30
+       violated_Ineq = 0.050000
+             TriIneq = 500
+         Pent_Trials = 100
+        Hepta_Trials = 75
+        include_Pent = 1
+       include_Hepta = 1
+                root = 0
+            use_diff = 1
+          time_limit = 0
+   branchingStrategy = 1
+      detailedOutput = 1
+
+**************************************************************************************************************************
+                                               Node 1
+**************************************************************************************************************************
+Problem size 4
+Fixed variables:
+Node 1 Feasible solution 124
+==========================================================================================================================
+Prune!
+==========================================================================================================================
+Depth = 0, Bound = 124.00, Best = 124
+
+
+Nodes = 1
+Root node bound = 124.002
+Maximum value = 124
+Solution = ( 2 3 )
+Wall clock time = 0.02 s
+
+*********************** end of MAX-CUT output *******************************
+
+Minimum value of the original problem is const_val - Maximum value: 1
+Solution = ( 1 0 0 )
