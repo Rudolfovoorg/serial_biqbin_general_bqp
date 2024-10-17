@@ -4,5 +4,5 @@ Obj/
 .DS_Store/
 *.o
 biqbin
-# *.output*
+test/*.output_*
 
