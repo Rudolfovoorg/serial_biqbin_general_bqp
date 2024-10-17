@@ -1,0 +1,9 @@
+- added .gitignore
+- added CHANGELOG.txt
+- added TODO.md
+- added Dockerfile for runtime isolation
+- added basic test
+- added test.sh with simple output comparsion test for a given problem instance
+- modified Makefile
+    - added targets: test, docker, docker-clean, docker-test
+

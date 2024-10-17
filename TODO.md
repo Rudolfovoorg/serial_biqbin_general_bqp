@@ -1,0 +1,2 @@
+- [] Consider argpasing by using some standard libs (https://stackoverflow.com/questions/9642732/parsing-command-line-arguments-in-c)
+- [] Improve error handling
