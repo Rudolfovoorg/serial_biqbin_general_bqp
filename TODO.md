@@ -1,2 +1,2 @@
-- [] Consider argpasing by using some standard libs (https://stackoverflow.com/questions/9642732/parsing-command-line-arguments-in-c)
+- [] Consider argpasing by using some standard libs (https://hackingcpp.com/cpp/libs/cmdline_args_parsing.html)
 - [] Improve error handling
