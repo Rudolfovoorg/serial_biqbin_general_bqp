@@ -37,6 +37,8 @@ row value
 .
 .
 
+Note, that indices starts from 1 and not from 0 !!!
+
    
 *****
 NOTE: The maximum size of problem the solver can solve is 512. If you need more adjust the number NMAX in biqbin.h file
