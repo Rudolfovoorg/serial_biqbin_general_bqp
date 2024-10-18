@@ -1,0 +1,21 @@
+Input file: test/test.dat
+
+Instance has 3 variables and 2 constraints.
+
+Parameter rho: 13.001339
+Exact penalty parameter: 28
+const_value: 69.000000
+
+************************** MAX-CUT output **********************************
+Node 1 Feasible solution 61
+
+Nodes = 1
+Root node bound = 61.000
+Maximum value = 61
+Solution = ( 1 )
+Wall clock time = 0.01 s
+
+*********************** end of MAX-CUT output *******************************
+
+Minimum value of the original problem is const_val - Maximum value: 8
+Solution = ( 0 1 1 )
