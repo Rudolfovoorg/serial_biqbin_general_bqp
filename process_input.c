@@ -26,6 +26,15 @@ double *c_obj_data;
             exit(1);\
         }
 
+// macro to handle the errors in the input reading
+#define BQP_READING_ERROR(file,cond,message,...)\
+        if ((cond)) {\
+            fprintf(stderr, "\nError reading input file %s at line %d.", instance, line_cnt); \
+            fprintf(stderr, "\n"#message); \
+            fprintf(stderr, "\n" __VA_ARGS__);\
+            fclose(file);\
+            exit(1);\
+        }
 
 void print_symmetric_matrix(double *Mat, int N) {
 
@@ -265,6 +274,9 @@ void readData(const char *instance) {
      objective: F,c, constraints: A,b ***/
 void readData_BQP(const char *instance) {
 
+    // input data  file line counter
+    int line_cnt = 0;
+
     // open input file
     FILE *f = fopen(instance, "r");
     if (f == NULL) {
@@ -281,9 +293,11 @@ void readData_BQP(const char *instance) {
     int n;
     int m;
 
-    READING_ERROR(f, fscanf(f, "%d %d \n", &n, &m) != 2,
-                  "Problem reading number of variables and constraints.");
-    READING_ERROR(f, n <= 0, "Number of vertices has to be positive.");
+    line_cnt++;
+    BQP_READING_ERROR(f, fscanf(f, "%d %d \n", &n, &m) != 2, 
+                      "Problem reading number of variables and constraints. Number of arguments != 2");
+    BQP_READING_ERROR(f, n <= 0, \
+                      "Number of vertices has to be positive.", "Got n = %d", n);
 
     // OUTPUT information on instance
     fprintf(stdout, "\nInstance has %d variables and %d constraints.\n", n, m);
@@ -293,7 +307,9 @@ void readData_BQP(const char *instance) {
     // read matrix A in the constraints Ax = b 
     // NOTE: constraints should be integer!
     char letter;
-    READING_ERROR(f, fscanf(f, "%c\n", &letter) != 1 || letter != 'A', "Expected 'A' line.\n");
+    line_cnt++;
+    BQP_READING_ERROR(f, fscanf(f, "%c\n", &letter) != 1 || letter != 'A', 
+                      "Expected letter 'A'",  "Got letter '%c'\n", letter);
 
     int i, j;
     double value;
@@ -305,17 +321,19 @@ void readData_BQP(const char *instance) {
     char line[256];
     while (fgets(line, sizeof(line), f) != NULL)
     {
+        line_cnt++;
         // Check for the 'b' line
         if (strcmp(line, "b\n") == 0)
         {
             break;
         }
                
-        READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3,
-                      "Problem with reading input file."); 
+        BQP_READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3, 
+                          "Matrix A: Number of parameters != 3."); 
 
-        READING_ERROR(f, ((i < 1 || i > m) || (j < 1 || j > n)),
-                      "Entries not in range.");  
+        BQP_READING_ERROR(f, ((i < 1 || i > m) || (j < 1 || j > n)), 
+                          "Matrix A: Entries not in range (i < 1 || i > m) || (j < 1 || j > n).", 
+                          "Got m=%d, n=%d, i=%d, j=%d\n", m, n, i, j);  
         
         A_con[ n * (i - 1) + (j - 1) ] = value;   
 
@@ -332,17 +350,19 @@ void readData_BQP(const char *instance) {
 
     while (fgets(line, sizeof(line), f) != NULL)
     {
+        line_cnt++;
         // Check for the 'F' line
         if (strcmp(line, "F\n") == 0)
         {
             break;
         }
 
-        READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2,
-                      "Problem with reading input file."); 
+        BQP_READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2, 
+                          "Vector b: Number of parameters != 2."); 
 
-        READING_ERROR(f, (i < 1 || i > m),
-                      "Entries not in range.");  
+        BQP_READING_ERROR(f, (i < 1 || i > m), 
+                          "Vector b: Entries not in range i < 1 || i > m.",  
+                          "Got m=%d, i=%d\n", m, i);  
        
        b_con[ i-1 ] = value;
     }
@@ -359,17 +379,19 @@ void readData_BQP(const char *instance) {
 
     while (fgets(line, sizeof(line), f) != NULL)
     {
+        line_cnt++;
         // Check for the 'c' line
         if (strcmp(line, "c\n") == 0)
         {
             break;
         }
                
-        READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3,
-                      "Problem with reading input file."); 
+        BQP_READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3,
+                          "Matrix F: Number of parameters != 3."); 
 
-        READING_ERROR(f, ((i < 1 || i > n) || (j < 1 || j > n)),
-                      "Entries not in range.");  
+        BQP_READING_ERROR(f, ((i < 1 || i > n) || (j < 1 || j > n)),
+                          "Matrix F: Entries not in range (i < 1 || i > n) || (j < 1 || j > n).", 
+                          "Got m=%d, n=%d, i=%d, j=%d\n", m, n, i, j);  
         
         if (i == j)
             F_obj[ n * (i - 1) + (j - 1) ] = value;   
@@ -396,12 +418,14 @@ void readData_BQP(const char *instance) {
 
     while (fgets(line, sizeof(line), f) != NULL)
     {
+        line_cnt++;
 
-        READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2,
-                      "Problem with reading input file."); 
+        BQP_READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2,
+                          "Vector c: Number of parameters != 2."); 
 
-        READING_ERROR(f, (i < 1 || i > n),
-                      "Entries not in range.");  
+        BQP_READING_ERROR(f, (i < 1 || i > n),
+                          "Vector c: Entries not in range (i < 1 || i > n.",  
+                          "Got n=%d, i=%d\n", n, i);  
        
        c_obj[ i-1 ] = value;
     }
