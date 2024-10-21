@@ -388,7 +388,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
             fprintf(output, "Prune!\n");
         }
         else if (giveup) {
-            fprintf(output, "BOUNDING STOPPED: Gap to big!\n");
+            fprintf(output, "BOUNDING STOPPED: Gap too big!\n");
         }
         fprintf(output, "==========================================================================================================================\n");
     }    
