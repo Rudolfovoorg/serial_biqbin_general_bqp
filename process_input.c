@@ -296,8 +296,8 @@ void readData_BQP(const char *instance) {
     line_cnt++;
     BQP_READING_ERROR(f, fscanf(f, "%d %d \n", &n, &m) != 2, 
                       "Problem reading number of variables and constraints. Number of arguments != 2");
-    BQP_READING_ERROR(f, n <= 0, \
-                      "Number of vertices has to be positive.", "Got n = %d", n);
+    BQP_READING_ERROR(f, n <= 0, 
+                      "Number of vertices has to be positive.", "Got n = %d\n", n);
 
     // OUTPUT information on instance
     fprintf(stdout, "\nInstance has %d variables and %d constraints.\n", n, m);
