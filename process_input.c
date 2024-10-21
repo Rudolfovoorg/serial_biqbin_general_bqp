@@ -424,7 +424,7 @@ void readData_BQP(const char *instance) {
                           "Vector c: Number of parameters != 2."); 
 
         BQP_READING_ERROR(f, (i < 1 || i > n),
-                          "Vector c: Entries not in range (i < 1 || i > n.",  
+                          "Vector c: Entries not in range i < 1 || i > n.",  
                           "Got n=%d, i=%d\n", n, i);  
        
        c_obj[ i-1 ] = value;
