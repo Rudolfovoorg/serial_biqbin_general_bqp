@@ -13,6 +13,32 @@ USAGE:
 ./biqbin instances_file params
 
 where instance_file contains the data and params is the parameter file that comes with the solver. 
+For a problem where x=(n, 1), F = (n, n), c = (n, 1), A=(m, n) and b = (m, 1) the instance file uses matrix and vector representation in the COO format as folows:
+
+n m
+A
+row column value
+.
+.
+.
+b
+row value
+.
+.
+.
+F
+row column value
+.
+.
+.
+c
+row value
+.
+.
+.
+
+Note, that indices starts from 1 and not from 0 !!!
+
    
 *****
 NOTE: The maximum size of problem the solver can solve is 512. If you need more adjust the number NMAX in biqbin.h file
