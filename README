@@ -4,6 +4,9 @@ min  x'Fx + c'x
 s.t. Ax = b
      x binary vector with components in {0,1}
 
+NOTE:
+All the data in the input F, c, A and b should have integer values.
+
 INSTALLATION:
 Open the makefile Makefile and set the compiler and blas/lapack package correctly
 depending on your system. Then type make. BiqBin is self-contained and does not depend
