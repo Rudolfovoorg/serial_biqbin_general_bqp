@@ -75,3 +75,5 @@ $(OBJ)/:
 # Clean rule #
 clean :
 	rm -rf $(BINS) $(OBJ)
+	rm -rf test/test.dat.output*
+

@@ -331,9 +331,10 @@ void readData_BQP(const char *instance) {
         BQP_READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3, 
                           "Matrix A: Number of parameters != 3."); 
 
-        BQP_READING_ERROR(f, ((i < 1 || i > m) || (j < 1 || j > n)), 
-                          "Matrix A: Entries not in range (i < 1 || i > m) || (j < 1 || j > n).", 
-                          "Got m=%d, n=%d, i=%d, j=%d\n", m, n, i, j);  
+        BQP_READING_ERROR(f, ((i < 1 || i > m) || (j < 1 || j > n) || (value != (long) value)), 
+                          "Matrix A: Entries not in range or value is not an integer."
+                          "(i < 1 || i > m) || (j < 1 || j > n) || (value != (long) value)", 
+                          "Got: %s\n", line);
         
         A_con[ n * (i - 1) + (j - 1) ] = value;   
 
@@ -360,9 +361,10 @@ void readData_BQP(const char *instance) {
         BQP_READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2, 
                           "Vector b: Number of parameters != 2."); 
 
-        BQP_READING_ERROR(f, (i < 1 || i > m), 
-                          "Vector b: Entries not in range i < 1 || i > m.",  
-                          "Got m=%d, i=%d\n", m, i);  
+        BQP_READING_ERROR(f, (i < 1 || i > m || (value != (long) value)), 
+                          "Vector b: Entries not in range or value is not an integer."
+                          "i < 1 || i > m || (value != (long) value)",
+                          "Got: %s\n", line);   
        
        b_con[ i-1 ] = value;
     }
@@ -389,9 +391,10 @@ void readData_BQP(const char *instance) {
         BQP_READING_ERROR(f, sscanf(line, "%d %d %lf \n", &i, &j, &value) != 3,
                           "Matrix F: Number of parameters != 3."); 
 
-        BQP_READING_ERROR(f, ((i < 1 || i > n) || (j < 1 || j > n)),
-                          "Matrix F: Entries not in range (i < 1 || i > n) || (j < 1 || j > n).", 
-                          "Got m=%d, n=%d, i=%d, j=%d\n", m, n, i, j);  
+        BQP_READING_ERROR(f, ((i < 1 || i > n) || (j < 1 || j > n) || (value != (long) value)),
+                          "Matrix F: Entries not in range or value is not an integer."
+                          "(i < 1 || i > n) || (j < 1 || j > n) || (value != (long) value).", 
+                          "Got: %s\n", line);  
         
         if (i == j)
             F_obj[ n * (i - 1) + (j - 1) ] = value;   
@@ -423,9 +426,10 @@ void readData_BQP(const char *instance) {
         BQP_READING_ERROR(f, sscanf(line, "%d %lf \n", &i, &value) != 2,
                           "Vector c: Number of parameters != 2."); 
 
-        BQP_READING_ERROR(f, (i < 1 || i > n),
-                          "Vector c: Entries not in range i < 1 || i > n.",  
-                          "Got n=%d, i=%d\n", n, i);  
+        BQP_READING_ERROR(f, (i < 1 || i > n  || (value != (long) value)),
+                          "Vector c: Entries not in range or value is not an integer."
+                          "i < 1 || i > n  || (value != (long) value)",
+                          "Got: %s\n", line);  
        
        c_obj[ i-1 ] = value;
     }
