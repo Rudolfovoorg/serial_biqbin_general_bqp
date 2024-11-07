@@ -6,4 +6,6 @@
 - added test.sh with simple output comparsion test for a given problem instance
 - modified Makefile
     - added targets: test, docker, docker-clean, docker-test
+- input data parsing decoupled from the solver
+- added simple python wrapper (test.py)
 
