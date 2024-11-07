@@ -288,7 +288,15 @@ InputData readData_BQP(const char *instance, InputData input_data) {
                           "(i < 1 || i > n) || (j < 1 || j > n) || (value != (long) value).", 
                           "Got: %s\n", line);  
         
-        F_obj[ n * (i - 1) + (j - 1) ] = value;   
+        // This needs to be done differently !!!
+        if (i == j) {
+            F_obj[ n * (i - 1) + (j - 1) ] = value;
+        }
+        else{
+            F_obj[ n * (i - 1) + (j - 1) ] = value;   
+            F_obj[ n * (j - 1) + (i - 1) ] = value;   
+
+        }
     }
 //    print_matrix(F_obj, n, n);
     
@@ -334,13 +342,6 @@ void post_process_BQP_input(InputData input_data) {
     double *F_obj = input_data.F;
     double *c_obj = input_data.c;
     double value;
-
-    // The solver is expecting F as symetric in an upper triangular form!
-    for (int i = 0; i < n; ++i) {
-        for (int j = i+1; j < n; ++j) {
-             F_obj[ n * j + i ] = F_obj[ n * i + j ];          
-        }
-    }
 
     // print_matrix(F_obj,n,n);
 

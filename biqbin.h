@@ -257,7 +257,6 @@ typedef struct
 
 void print_symmetric_matrix(double *Mat, int N);
 void print_matrix(double *Mat, int M, int N);
-void readData(const char *instance);
 BiqBinParameters readParameters(const char *path);
 InputData processCommandLineArguments(int argc, char **argv);
 InputData readData_BQP(const char *, InputData);

@@ -43,15 +43,26 @@ class BiqBinParameters(ctypes.Structure):
 
 
 def qbo_input_to_matrices(instance):
+
+    # zes it is realy like this in biqbin :(
+    def f(F):
+        for i,j,v in F:
+            if i==j:
+                yield (i, j), v
+            else:
+                yield (i, j), v
+                yield (j, i), v
+                
     
-    
-    Fnp = np.array(instance["F"])
+    Fdict = dict(f(instance["F"]))
     Anp = np.array(instance["A"])
     cnp = np.array(instance["c"])
     bnp = np.array(instance["b"])
 
+    Find, Fv = (list(Fdict.keys()), list(Fdict.values()))
+    Find = np.asarray(Find)
 
-    Fm = coo_matrix((Fnp[:, 2], (Fnp[:, 0], Fnp[:, 1])), shape=(instance["number_of_variables"], instance["number_of_variables"])).todense()
+    Fm = coo_matrix((Fv, (Find[:, 0], Find[:, 1])), shape=(instance["number_of_variables"], instance["number_of_variables"])).todense()
     Am = coo_matrix((Anp[:, 2], (Anp[:, 0], Anp[:, 1])), shape=(instance["number_of_constrains"], instance["number_of_variables"])).todense()
     cm = coo_matrix((cnp[:, 1], ([0]*len(instance["c"]), cnp[:, 0])), shape=(1, instance["number_of_variables"])).todense()
     bm = coo_matrix((bnp[:, 1], (bnp[:, 0], [0]*len(instance["b"]))), shape=(instance["number_of_constrains"], 1)).todense()
