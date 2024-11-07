@@ -182,7 +182,7 @@ void freeMemory(void);
 /* bab_functions.c */
 void initializeBabSolution(void);
 void Init_PQ(void);
-void Bab_Init(int argc, char **argv);
+void Bab_Init();
 double evaluateSolution(int *sol);
 int updateSolution(int *x);
 void Bab_GenChild(BabNode *node);
@@ -245,15 +245,30 @@ void op_B(const Problem *P, double *y, const double *X);
 void op_Bt(const Problem *P, double *X, const double *tt);
 
 /* process_input.c */
+typedef struct 
+{
+    int m, n;
+    double *A;
+    double *b;
+    double *F;
+    double *c;
+    char name[255];
+} InputData;
+
 void print_symmetric_matrix(double *Mat, int N);
 void print_matrix(double *Mat, int M, int N);
-void processCommandLineArguments(int argc, char **argv);
 void readData(const char *instance);
-void readData_BQP(const char *instance);
-void readParameters(const char *path);
+BiqBinParameters readParameters(const char *path);
+InputData processCommandLineArguments(int argc, char **argv);
+InputData readData_BQP(const char *, InputData);
+void post_process_BQP_input(InputData);
+void open_output_file(const char *name);
+void print_parameters(BiqBinParameters params);
 
 /* qap_simuted_annealing.c */
 double qap_simulated_annealing(int *H, int k, double *X, int n, int *pent);
 
+/* biqbin.c */
+int compute(InputData input_data, BiqBinParameters biqbin_parameters);
 
 #endif /*BIQBIN_H */

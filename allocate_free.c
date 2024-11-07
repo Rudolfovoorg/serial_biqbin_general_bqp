@@ -6,7 +6,6 @@
 extern BabSolution *BabSol;     // global solution of B&B algorithm defined in heap.c
 
 void allocMemory(void) {
-
     /* 
      * SP, SP->n, SP->L, PP, PP->n and PP->L 
      * are all allocated and defined in readData (process_input.c),
@@ -31,7 +30,7 @@ void allocMemory(void) {
     alloc_matrix(Z, N, double);
     alloc_vector(X_bundle, N * N * MaxBundle, double);
     alloc_matrix(X_test, N, double);
-    alloc_vector(gamma, MaxTriIneqAdded + MaxPentIneqAdded + MaxHeptaIneqAdded, double);
+    alloc_vector(biqbin_gamma, MaxTriIneqAdded + MaxPentIneqAdded + MaxHeptaIneqAdded, double);
     alloc_vector(dgamma, MaxTriIneqAdded + MaxPentIneqAdded + MaxHeptaIneqAdded, double);
     alloc_vector(gamma_test, MaxTriIneqAdded + MaxPentIneqAdded + MaxHeptaIneqAdded, double);
     alloc_vector(lambda, MaxBundle, double);
@@ -62,7 +61,7 @@ void freeMemory(void) {
     free(Z);
     free(X_bundle);
     free(X_test);
-    free(gamma);
+    free(biqbin_gamma);
     free(dgamma);
     free(gamma_test);
     free(lambda);

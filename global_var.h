@@ -4,7 +4,7 @@
 /************ List of all global variables **************/
 /********************************************************/
 BiqBinParameters params;            // BiqBin parameters
-FILE *output;                       // output file
+FILE *output = NULL;                // output file
 Problem *SP;                        // original problem instance
 Problem *PP;                        // subproblem instance
 int stopped = 0;                    // true if the algorithm stopped at root node or after a time limit
@@ -23,7 +23,7 @@ double *X_bundle;                   // containts bundle matrices as columns
 double *X_test;                     // matching pair X for gamma_test
 
 /* DUAL variables */
-double *gamma;                      // (nonnegative) dual multiplier to cutting planes
+double *biqbin_gamma;                      // (nonnegative) dual multiplier to cutting planes
 double *dgamma;                     // step direction vector
 double *gamma_test;
 double *lambda;                     // vector containing scalars of convex combinations of bundle matrices X_i
