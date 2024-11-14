@@ -23,7 +23,7 @@ double *X_bundle;                   // containts bundle matrices as columns
 double *X_test;                     // matching pair X for gamma_test
 
 /* DUAL variables */
-double *biqbin_gamma;                      // (nonnegative) dual multiplier to cutting planes
+double *dual_gamma;                 // (nonnegative) dual multiplier to cutting planes
 double *dgamma;                     // step direction vector
 double *gamma_test;
 double *lambda;                     // vector containing scalars of convex combinations of bundle matrices X_i
