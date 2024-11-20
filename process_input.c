@@ -62,24 +62,19 @@ void print_matrix(double *Mat, int M, int N) {
     }
 }   
 
-void processCommandLineArguments(int argc, char **argv) {
 
-    // Control the command line arguments
-    if (argc != 3) {
-        fprintf(stderr, "Usage: ./biqbin input_file params\n");
-        exit(1);
-    }
+void open_output_file(const char *name) {
 
     // Create the output file
     char output_path[200];
-    sprintf(output_path, "%s.output", argv[1]);
+    sprintf(output_path, "%s.output", name);
 
     // Check if the file already exists, if so append _<NUMBER> to the end of the output file name
     struct stat buffer;
     int counter = 1;
     
     while (stat(output_path, &buffer) == 0)
-        sprintf(output_path, "%s.output_%d", argv[1], counter++);
+        sprintf(output_path, "%s.output_%d", name, counter++);
 
     output = fopen(output_path, "w");
     if (!output) {
@@ -87,23 +82,36 @@ void processCommandLineArguments(int argc, char **argv) {
         exit(1);
     }
 
+}
+
+InputData  processCommandLineArguments(int argc, char **argv) {
+
+    InputData input_data;
+
+    // Control the command line arguments
+    if (argc != 3) {
+        fprintf(stderr, "Usage: ./biqbin input_file params\n");
+        exit(1);
+    }
+
+    open_output_file(argv[1]);
+
     /*** Read the input file instance ***/
-    readData_BQP(argv[1]);
+    input_data = readData_BQP(argv[1], input_data);
+    strcpy(input_data.name, argv[1]);
 
-    /*** Read the parameters from a user file ***/
-    readParameters(argv[2]);
-
-    //exit(1);
+    return input_data;
 }
 
 
 
 /* Read parameters contained in the file given by the argument */
-void readParameters(const char *path) {
+BiqBinParameters readParameters(const char *path) {
 
     FILE* paramfile;
     char s[128];            // read line
     char param_name[50];
+    BiqBinParameters params;
 
     // Initialize every parameter with its default value
 #define P(type, name, format, def_value)\
@@ -134,6 +142,11 @@ void readParameters(const char *path) {
     }
     fclose(paramfile);
 
+    return params;
+}
+
+
+void print_parameters(BiqBinParameters params) {
     // print parameters to output file
     fprintf(output, "BiqBin parameters:\n");
 #define P(type, name, format, def_value)\
@@ -143,136 +156,9 @@ void readParameters(const char *path) {
 }
 
 
-/*** read MAX-CUT graph file ***/
-void readData(const char *instance) {
-
-    // open input file
-    FILE *f = fopen(instance, "r");
-    if (f == NULL) {
-        fflush(stdout);
-        fprintf(stderr, "Error: problem opening input file %s\n", instance);
-        exit(1);
-    }
-    printf("Input file: %s\n", instance);
-    fprintf(output,"Input file: %s\n", instance);
-
-
-    int num_vertices;
-    int num_edges;
-
-    READING_ERROR(f, fscanf(f, "%d %d \n", &num_vertices, &num_edges) != 2,
-                  "Problem reading number of vertices and edges");
-    READING_ERROR(f, num_vertices <= 0, "Number of vertices has to be positive");
-
-    // OUTPUT information on instance
-    fprintf(stdout, "\nGraph has %d vertices and %d edges.\n\n", num_vertices, num_edges);
-    fprintf(output, "\nGraph has %d vertices and %d edges.\n\n", num_vertices, num_edges);
-
-    // read edges and store them in matrix Adj
-    // NOTE: last node is fixed to 0
-    int i, j;
-    double weight;
-
-    // Adjacency matrix Adj: allocate and set to 0 
-    double *Adj;
-    alloc_matrix(Adj, num_vertices, double);
-
-    for (int edge = 0; edge < num_edges; ++edge) {
-        
-        READING_ERROR(f, fscanf(f, "%d %d %lf \n", &i, &j, &weight) != 3,
-                      "Problem reading edges of the graph"); 
-
-        READING_ERROR(f, ((i < 1 || i > num_vertices) || (j < 1 || j > num_vertices)),
-                      "Problem with edge. Vertex not in range");  
-        
-        Adj[ num_vertices * (j - 1) + (i - 1) ] = weight;
-        Adj[ num_vertices * (i - 1) + (j - 1) ] = weight;      
-    }   
-
-    fclose(f);
-
-    // allocate memory for original problem SP and subproblem PP
-    alloc(SP, Problem);
-    alloc(PP, Problem);
-
-    // size of matrix L
-    SP->n = num_vertices;   
-    PP->n = SP->n;              
-
-    // allocate memory for objective matrices for SP and PP
-    alloc_matrix(SP->L, SP->n, double);
-    alloc_matrix(PP->L, SP->n, double);
-
-    // IMPORTANT: last node is fixed to 0
-    // --> BabPbSize is one less than the size of problem SP
-    BabPbSize = SP->n - 1; // num_vertices - 1;
-    
-    
-
-    /********** construct SP->L from Adj **********/
-    /*
-     * SP->L = [ Laplacian,  Laplacian*e; (Laplacian*e)',  e'*Laplacian*e]
-     */
-    // NOTE: we multiply with 1/4 afterwards when subproblems PP are created!
-    //       (in function createSubproblem)
-    // NOTE: Laplacian is stored in upper left corner of L
-
-    // (1) construct vec Adje = Adj*e 
-    double *Adje;
-    alloc_vector(Adje, num_vertices, double);
-
-    for (int ii = 0; ii < num_vertices; ++ii) {
-        for (int jj = 0; jj < num_vertices; ++jj) {
-            Adje[ii] += Adj[jj + ii * num_vertices];
-        }
-    }
-
-    // (2) construct Diag(Adje)
-    double *tmp;
-    alloc_matrix(tmp, num_vertices, double);
-    Diag(tmp, Adje, num_vertices);
-
-    // (3) fill upper left corner of L with Laplacian = tmp - Adj,
-    //     vector parts and constant part      
-    double sum_row = 0.0;
-    double sum = 0.0;
-
-    // NOTE: skip last vertex (it is fixed to 0)!!
-    for (int ii = 0; ii < num_vertices; ++ii) {            
-        for (int jj = 0; jj < num_vertices; ++jj) {
-
-            // matrix part of L
-            if ( (ii < num_vertices - 1) && (jj < num_vertices - 1) ) {
-                SP->L[jj + ii * num_vertices] = tmp[jj + ii * num_vertices] - Adj[jj + ii * num_vertices]; 
-                sum_row += SP->L[jj + ii * num_vertices];       
-            }
-            // vector part of L
-            else if ( (jj == num_vertices - 1) && (ii != num_vertices - 1)  ) {
-                SP->L[jj + ii * num_vertices] = sum_row;
-                sum += sum_row;
-            }
-            // vector part of L
-            else if ( (ii == num_vertices - 1) && (jj != num_vertices - 1)  ) {
-                SP->L[jj + ii * num_vertices] = SP->L[ii + jj * num_vertices];
-            }
-            // constant term in L
-            else { 
-                SP->L[jj + ii * num_vertices] = sum;
-            }
-        }
-        sum_row = 0.0;
-    } 
-
-    // NOTE: PP->L is computed in createSubproblem (evaluate.c)
-    free(Adj);
-    free(Adje);
-    free(tmp);  
-}
-
-
 /*** read input file containing data for linearly constrained BQP: 
      objective: F,c, constraints: A,b ***/
-void readData_BQP(const char *instance) {
+InputData readData_BQP(const char *instance, InputData input_data) {
 
     // input data  file line counter
     int line_cnt = 0;
@@ -299,6 +185,9 @@ void readData_BQP(const char *instance) {
     BQP_READING_ERROR(f, n <= 0, 
                       "Number of vertices has to be positive.", "Got n = %d\n", n);
 
+    input_data.m = m;
+    input_data.n = n;
+    
     // OUTPUT information on instance
     fprintf(stdout, "\nInstance has %d variables and %d constraints.\n", n, m);
     fprintf(output, "\nInstance has %d variables and %d constraints.\n", n, m);
@@ -317,6 +206,7 @@ void readData_BQP(const char *instance) {
     // matrix A_con: allocate and set to 0 
     double *A_con;
     alloc_vector(A_con, m*n, double);
+    input_data.A = A_con;
 
     char line[256];
     while (fgets(line, sizeof(line), f) != NULL)
@@ -348,6 +238,7 @@ void readData_BQP(const char *instance) {
     // vector b_con: allocate and set to 0 
     double *b_con;
     alloc_vector(b_con, m, double);    
+    input_data.b = b_con;
 
     while (fgets(line, sizeof(line), f) != NULL)
     {
@@ -377,6 +268,7 @@ void readData_BQP(const char *instance) {
     // matrix F_obj: allocate and set to 0 
     double *F_obj;
     alloc_matrix(F_obj, n, double);  
+    input_data.F = F_obj;
 
 
     while (fgets(line, sizeof(line), f) != NULL)
@@ -396,28 +288,30 @@ void readData_BQP(const char *instance) {
                           "(i < 1 || i > n) || (j < 1 || j > n) || (value != (long) value).", 
                           "Got: %s\n", line);  
         
-        if (i == j)
-            F_obj[ n * (i - 1) + (j - 1) ] = value;   
-        else 
-        {
-            F_obj[ n * (i - 1) + (j - 1) ] = value; 
-            F_obj[ n * (j - 1) + (i - 1) ] = value; 
+        // This needs to be done differently !!!
+        if (i == j) {
+            F_obj[ n * (i - 1) + (j - 1) ] = value;
         }
+        else{
+            F_obj[ n * (i - 1) + (j - 1) ] = value;   
+            F_obj[ n * (j - 1) + (i - 1) ] = value;   
 
+        }
     }
-    //print_matrix(F_obj, n, n);
+//    print_matrix(F_obj, n, n);
     
     // copy F_obj to F_obj_data to hold original data
-    alloc_matrix(F_obj_data, n, double); 
-    int size_sq = n*n;
-    int inc = 1;
-    dcopy_(&size_sq, F_obj, &inc, F_obj_data, &inc);
+//    alloc_matrix(F_obj_data, n, double); 
+ //   int size_sq = n*n;
+ //   int inc = 1;
+ //   dcopy_(&size_sq, F_obj, &inc, F_obj_data, &inc);
     
 
 
     // vector c_obj: allocate and set to 0 
     double *c_obj;
     alloc_vector(c_obj, n, double);    
+    input_data.c = c_obj;
 
     while (fgets(line, sizeof(line), f) != NULL)
     {
@@ -433,15 +327,33 @@ void readData_BQP(const char *instance) {
        
        c_obj[ i-1 ] = value;
     }
-    //print_matrix(c_obj, n, 1);
-    
+ 
+    return input_data;    
+}
+
+/*** read input file containing data for linearly constrained BQP: 
+     objective: F,c, constraints: A,b ***/
+void post_process_BQP_input(InputData input_data) {
+
+    int m = input_data.m;
+    int n = input_data.n;
+    double *A_con = input_data.A;
+    double *b_con = input_data.b;
+    double *F_obj = input_data.F;
+    double *c_obj = input_data.c;
+    double value;
+
+    // print_matrix(F_obj,n,n);
+
+    // copy F_obj to F_obj_data to hold original data
+    alloc_matrix(F_obj_data, n, double); 
+    int size_sq = n*n;
+    int inc = 1;
+    dcopy_(&size_sq, F_obj, &inc, F_obj_data, &inc);
+
     // copy c_obj to c_obj_data to hold original data
     alloc_vector(c_obj_data, n, double); 
     dcopy_(&n, c_obj, &inc, c_obj_data, &inc);
-
-
-    fclose(f);
-    
 
     /* constant term 1/4e'Fe + 1/2c'e */
     double constant = 0;
@@ -454,9 +366,6 @@ void readData_BQP(const char *instance) {
     for (int i = 0; i < n; ++i) {
         constant += 0.5 * c_obj[i];
     }    
-
-    //printf("constant is %lf\n", constant);
-
     
     /* transformation from {0,1} to {-1,1} model */
 
@@ -718,10 +627,6 @@ void readData_BQP(const char *instance) {
     //print_matrix(SP->L,n+1,n+1);
 
     /* free stuff */
-    free(A_con);
-    free(b_con);
-    free(F_obj);
-    free(c_obj);
     free(C);
     free(tmp_X);
     free(tmp_C); 
@@ -732,6 +637,4 @@ void readData_BQP(const char *instance) {
 
     
 }
-
-
 

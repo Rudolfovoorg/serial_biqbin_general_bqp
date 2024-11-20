@@ -67,13 +67,10 @@ void Init_PQ(void) {
  * Bab function which initializes the problem, allocate the structures 
  * and evaluate the root node.
  */
-void Bab_Init(int argc, char **argv) {
+void Bab_Init() {
 
     // Start the timer
     TIME = time_wall_clock();
-
-    // Process the command line arguments
-    processCommandLineArguments(argc, argv);
 
     // Provide B&B with an initial solution
     initializeBabSolution();

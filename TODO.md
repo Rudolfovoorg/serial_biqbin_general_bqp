@@ -1,2 +1,3 @@
 - [] Consider argpasing by using some standard libs (https://hackingcpp.com/cpp/libs/cmdline_args_parsing.html)
 - [] Improve error handling
+- [] Change the way the matrix F is parsed from input data

@@ -15,7 +15,7 @@ void bundle_method(Problem *PP, double *t, int bdl_iter, double fixedValue) {
     extern double *X_bundle;        // bundle of matrices Xi
     extern double *F;               // bundle of <L,Xi>
     extern double *G;               // bundle of gradients
-    extern double *gamma;           // dual variable to cutting plane inequalities
+    extern double *dual_gamma;           // dual variable to cutting plane inequalities
     extern double *dgamma;          // step vector for gamma
     extern double *gamma_test;      
     extern double *lambda;          // contains scalars of convex combinations of bundle matrices
@@ -60,14 +60,14 @@ void bundle_method(Problem *PP, double *t, int bdl_iter, double fixedValue) {
         alpha = -1.0;
         beta = -1.0;
         TRANS = 'T';
-        dgemv_(&TRANS, &m, &k, &alpha, G, &m, gamma, &inc, &beta, zeta, &inc);
+        dgemv_(&TRANS, &m, &k, &alpha, G, &m, dual_gamma, &inc, &beta, zeta, &inc);
 
         /*** solve QP ***/
-        lambda_eta(PP, zeta, G, gamma, dgamma, lambda, eta, t);
+        lambda_eta(PP, zeta, G, dual_gamma, dgamma, lambda, eta, t);
 
         /*** make a step: gamma_test = gamma + dgamma; ***/
         for (int i = 0; i < m; ++i)
-            gamma_test[i] = gamma[i] + dgamma[i];
+            gamma_test[i] = dual_gamma[i] + dgamma[i];
 
         /*** evaluate function at gamma_test ***/
         f_test = fct_eval(PP, gamma_test, X_test, g);
@@ -93,7 +93,7 @@ void bundle_method(Problem *PP, double *t, int bdl_iter, double fixedValue) {
         if (f - f_test > 0.05 * del) { // SERIOUS STEP
         
             // gamma = gamma_test
-            dcopy_(&m, gamma_test, &inc, gamma, &inc);  
+            dcopy_(&m, gamma_test, &inc, dual_gamma, &inc);  
 
             // f = f_test
             f = f_test;

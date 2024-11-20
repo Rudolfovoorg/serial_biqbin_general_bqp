@@ -15,7 +15,7 @@ extern double *X_bundle;                     // current X
 extern double *F;                            // bundle of function values
 extern double *G;                            // bundle of subgradients
 extern double *g;                            // subgradient
-extern double *gamma;                        // dual multiplers for triangle inequalities
+extern double *dual_gamma;                        // dual multiplers for triangle inequalities
 extern double *X_test;
 
 
@@ -123,7 +123,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
     }
 
     /* separate first triangle inequality */
-    viol3 = updateTriangleInequalities(PP, gamma, &Tri_NumAdded, &Tri_NumSubtracted);
+    viol3 = updateTriangleInequalities(PP, dual_gamma, &Tri_NumAdded, &Tri_NumSubtracted);
 
     // print output to file
     if (params.detailedOutput) {
@@ -153,7 +153,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
 
     // set gamma = 0
     for (int i = 0; i < PP->NIneq; ++i) {
-        gamma[i] = Cuts[i].y;
+        dual_gamma[i] = Cuts[i].y;
     }
 
     // t = 0.5 * (f - fh) / (PP->NIneq * viol3^2)
@@ -239,7 +239,7 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
             penta = PP->NPentIneq;      // --> to know with which index in dual vector gamma, pentagonal
                                         // and heptagonal inequalities start!
 
-            viol3 = updateTriangleInequalities(PP, gamma, &Tri_NumAdded, &Tri_NumSubtracted);
+            viol3 = updateTriangleInequalities(PP, dual_gamma, &Tri_NumAdded, &Tri_NumSubtracted);
    
 
                       
@@ -247,12 +247,12 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
             if ( (SP->n > 10) && (viol3 < 0.3) )
             {
                 if ( params.include_Pent ) {
-                    viol5 = updatePentagonalInequalities(PP, gamma, &Pent_NumAdded, &Pent_NumSubtracted, triag);  
+                    viol5 = updatePentagonalInequalities(PP, dual_gamma, &Pent_NumAdded, &Pent_NumSubtracted, triag);  
                 }
                 if ( params.include_Hepta ) {
                     if (penta == 0)
                         penta = PP->NPentIneq;
-                    viol7 = updateHeptagonalInequalities(PP, gamma, &Hepta_NumAdded, &Hepta_NumSubtracted, triag + penta);  
+                    viol7 = updateHeptagonalInequalities(PP, dual_gamma, &Hepta_NumAdded, &Hepta_NumSubtracted, triag + penta);  
                 }
             }
 
@@ -308,16 +308,16 @@ double SDPbound(BabNode *node, Problem *SP, Problem *PP) {
 
             // adjust size of gamma
             for (int i = 0; i < PP->NIneq; ++i)
-                gamma[i] = Cuts[i].y;
+                dual_gamma[i] = Cuts[i].y;
             
             for (int i = 0; i < PP->NPentIneq; ++i)
-                gamma[i + PP->NIneq] = Pent_Cuts[i].y;
+                dual_gamma[i + PP->NIneq] = Pent_Cuts[i].y;
 
             for (int i = 0; i < PP->NHeptaIneq; ++i)
-                gamma[i + PP->NIneq + PP->NPentIneq] = Hepta_Cuts[i].y;
+                dual_gamma[i + PP->NIneq + PP->NPentIneq] = Hepta_Cuts[i].y;
 
 
-            fct_eval(PP, gamma, X_test, g);
+            fct_eval(PP, dual_gamma, X_test, g);
 
             // G
             /* for i = 1:k

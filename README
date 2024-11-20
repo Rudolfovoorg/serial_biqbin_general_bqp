@@ -6,6 +6,7 @@ s.t. Ax = b
 
 NOTE:
 All the data in the input F, c, A and b need to have integer values.
+The matrix F is expected to be a representation of a symmetric matrix s.t. only one entry (i, j, v) for i !=j  can be present !!!
 
 INSTALLATION:
 Open the makefile Makefile and set the compiler and blas/lapack package correctly
