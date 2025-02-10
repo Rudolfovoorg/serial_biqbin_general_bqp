@@ -89,6 +89,6 @@ clean :
 	rm -rf $(BINS) $(OBJ)
 	rm -rf test/test.dat.output*
 	rm -rf *.output*
-	rm biqbin.so
+	rm -f biqbin.so
 
 
